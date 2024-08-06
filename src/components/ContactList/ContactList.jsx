@@ -1,29 +1,33 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-import ContactItem from 'components/ContactItem/ContactItem';
+import { useSelector, useDispatch } from 'react-redux';
+import { deleteContact } from '../../contactSlice';
+import ContactItem from '../ContactItem/ContactItem';
 import styles from './ContactList.module.css';
 
-const ContactList = ({ contacts, onDeleteContact }) => (
-  <ul className={styles.list}>
-    {contacts.map(contact => (
-      <ContactItem
-        key={contact.id}
-        contact={contact}
-        onDeleteContact={onDeleteContact}
-      />
-    ))}
-  </ul>
-);
+const ContactList = () => {
+  const dispatch = useDispatch();
+  const contacts = useSelector(state => state.contacts.contacts); 
+  const filter = useSelector(state => state.contacts.filter);
 
-ContactList.propTypes = {
-  contacts: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.string.isRequired,
-      name: PropTypes.string.isRequired,
-      number: PropTypes.string.isRequired,
-    })
-  ).isRequired,
-  onDeleteContact: PropTypes.func.isRequired,
+  const filteredContacts = contacts.filter(contact =>
+    contact.name.toLowerCase().includes(filter.toLowerCase())
+  );
+
+  const handleDeleteContact = id => {
+    dispatch(deleteContact(id));
+  };
+
+  return (
+    <ul className={styles.list}>
+      {filteredContacts.map(contact => (
+        <ContactItem
+          key={contact.id}
+          contact={contact}
+          onDeleteContact={handleDeleteContact}
+        />
+      ))}
+    </ul>
+  );
 };
 
 export default ContactList;
